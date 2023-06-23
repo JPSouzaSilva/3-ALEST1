@@ -55,8 +55,17 @@ public class WordTree {
          * Obtém a palavra correspondente a este nodo, subindo até a raiz da árvore
          * @return a palavra
          */
-        private String getWord(CharNode n) {
-           
+        private String getWord() {
+            String word = "";
+            getWord(root, word);
+            return word;
+        }
+
+        private void getWord(CharNode n, String word) {
+            if (n != null) {
+                word += n.character;
+                getWord(n.father, word);
+            }
         }
         
         /**
