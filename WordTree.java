@@ -56,8 +56,12 @@ public class WordTree {
          * @return a palavra
          */
         private String getWord() {
+            String wordReverse = "";
+            getWord(root, wordReverse);
             String word = "";
-            getWord(root, word);
+            for (int i = wordReverse.length()-1; i >= 0; i++) {
+                word += wordReverse.charAt(i);
+            }
             return word;
         }
 
