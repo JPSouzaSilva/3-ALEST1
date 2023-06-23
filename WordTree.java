@@ -55,9 +55,12 @@ public class WordTree {
          * Obtém a palavra correspondente a este nodo, subindo até a raiz da árvore
          * @return a palavra
          */
-        private String getWord() {
+        private String getWord(CharNode n) {
             String wordReverse = "";
-            getWord(root, wordReverse);
+            if (n.isFinal != true) {
+                return null;
+            }
+            getWord(n, wordReverse);
             String word = "";
             for (int i = wordReverse.length()-1; i >= 0; i++) {
                 word += wordReverse.charAt(i);
