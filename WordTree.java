@@ -1,5 +1,5 @@
 import java.util.LinkedList;
-import java.util.List;
+
 
 public class WordTree {
     
@@ -31,13 +31,23 @@ public class WordTree {
         * Adiciona um filho (caracter) no nodo. Não pode aceitar caracteres repetidos.
         * @param character - caracter a ser adicionado
         * @param isfinal - se é final da palavra ou não
+         * @param significado2
         */
-        public CharNode addChild (char character, boolean isfinal) {
-            CharNode nodeCaracterRep = findChildChar(character, root);
-            if (nodeCaracterRep != null) {
+        public CharNode addChild (char character, boolean isfinal, String significado) {
+            CharNode aux = findChildChar(character);
+            if (aux != null) {
                 return null;
             }
             
+            CharNode n = new CharNode(character, isfinal);
+            if (n.isFinal == true) {
+                n.significado = significado;
+            }
+
+            n.father = this;
+            children.add(n);
+            totalNodes++;
+            return n;
         }
         
         public int getNumberOfChildren () {
@@ -79,23 +89,13 @@ public class WordTree {
         * Encontra e retorna o nodo que tem determinado caracter.
         * @param character - caracter a ser encontrado.
         */
-        public CharNode findChildChar (char character, CharNode n) {
-            if (n == null) {
-                return null;
-            }
-
-            if (n.character == character) {
-                return n;
-            }
-
-            CharNode aux = null;
-            for (int i = 0; i < n.getNumberOfChildren(); i++) {
-                aux = findChildChar(character, n.getChild(i));
-                if (aux != null) {
+        public CharNode findChildChar (char character) {
+            for (CharNode aux : children) {
+                if (aux.character == character) {
                     return aux;
                 }
             }
-            return aux;
+            return null;
         }
     }
     
@@ -124,9 +124,22 @@ public class WordTree {
     *Adiciona palavra na estrutura em árvore
     *@param word
     */
-    public void addWord(String word) {
-        ...
+    public void addWord(String word, String significado) {
+        CharNode aux = root;
+        for (int i = 0; i < word.length(); i++) {
+            if (aux.getChild(i).character == word.charAt(i)) {
+                aux = aux.getChild(i);
+            } else {
+                if (aux.getChild(i).character == word.charAt(word.length()-1)) {
+                    aux.addChild(word.charAt(i), true, significado);
+                } else {
+                    aux.addChild(word.charAt(i), false, null);
+                }
+            }
+        }
+        totalWords++;        
     }
+
     
     /**
      * Vai descendo na árvore até onde conseguir encontrar a palavra
@@ -134,7 +147,17 @@ public class WordTree {
      * @return o nodo final encontrado
      */
     private CharNode findCharNodeForWord(String word) {
-        ...
+        CharNode aux = root;
+        for (int i = 0; i < aux.getNumberOfChildren(); i++) {
+            if (aux.getChild(i).character == word.charAt(i)) {
+                aux = aux.getChild(i);
+            }
+            return null;
+        }
+        if (aux.isFinal == false) {
+            return null;
+        }
+        return aux;
     }
 
     /**
@@ -142,8 +165,23 @@ public class WordTree {
     * Tipicamente, um método recursivo.
     * @param prefix
     */
-    public List<String> searchAll(String prefix) {
-        ...
-    }   
+    public LinkedList<String> searchAll(String prefix) {
+        LinkedList<String> lista = new LinkedList<>();
+        caminhamento(root, lista);
+        return lista;
+        // Não ta pronto
+        
+    }
+    
+    private void caminhamento(CharNode n, LinkedList<String> lista) {
+        if (n != null) {
+            if (n.isFinal == true) {
+                addWord(n.getWord(n), n.significado);
+            }
+            for (int i = 0; i < n.getNumberOfChildren(); i++) {
+                caminhamento(n.getChild(i), lista);
+            }
+        }
+    }
 
 }
