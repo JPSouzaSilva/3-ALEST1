@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 
 public class App {
 
-    public static void fazLista(WordTree tree, FileInputStream stream) throws IOException {
+    public static void buildTree(WordTree tree, FileInputStream stream) throws IOException {
         InputStreamReader reader = new InputStreamReader(stream);
         BufferedReader br = new BufferedReader(reader);
         String linha = br.readLine();
@@ -23,9 +23,6 @@ public class App {
         FileInputStream stream = new FileInputStream("dicionario.csv");
         WordTree tree = new WordTree();
         tree.addRoot();
-        fazLista(tree, stream);
-        System.out.println(tree.searchAll("J"));
-
-
+        buildTree(tree, stream);
     }
 }

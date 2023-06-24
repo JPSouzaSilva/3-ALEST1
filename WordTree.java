@@ -10,7 +10,6 @@ public class WordTree {
         public boolean isFinal;
         public CharNode father;
         public LinkedList<CharNode> children;
-        char aux;
 
         public CharNode(char character) {
             this.character = character;
@@ -156,7 +155,6 @@ public class WordTree {
                 aux = n;
             }
         }
-    
         return aux;
     }
     
@@ -176,12 +174,10 @@ public class WordTree {
 
     private void caminhamento(CharNode n, LinkedList<String> lista) {
          if (n != null) {
-            // Visita a raiz
             if ((n.isFinal)) {
                 Palavra p = new Palavra(n.getWord(n), n.significado);
                 lista.add(p.toString());
             }
-            // Visita os filhos
             for (CharNode child : n.children) {
                 caminhamento(child, lista);
             }
