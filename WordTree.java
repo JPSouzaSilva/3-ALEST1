@@ -1,15 +1,15 @@
 import java.util.LinkedList;
-import java.util.List;
+
 
 public class WordTree {
-    
+
     // Classe interna
-    private class CharNode {
-        private char character;
-	    private String significado;
-        private boolean isFinal;
-        private CharNode father;
-        private LinkedList<CharNode> children;
+    public class CharNode {
+        public char character;
+        public String significado;
+        public boolean isFinal;
+        public CharNode father;
+        public LinkedList<CharNode> children;
 
         public CharNode(char character) {
             this.character = character;
@@ -18,7 +18,7 @@ public class WordTree {
             isFinal = false;
             significado = null;
         }
-        
+
         public CharNode(char character, boolean isFinal) {
             this.character = character;
             father = null;
@@ -28,90 +28,85 @@ public class WordTree {
         }
 
         /**
-        * Adiciona um filho (caracter) no nodo. Não pode aceitar caracteres repetidos.
-        * @param character - caracter a ser adicionado
-        * @param isfinal - se é final da palavra ou não
-        */
-        public CharNode addChild (char character, boolean isfinal) {
-            CharNode nodeCaracterRep = findChildChar(character, root);
-            if (nodeCaracterRep != null) {
+         * Adiciona um filho (caracter) no nó. Não pode aceitar caracteres repetidos.
+         *
+         * @param character   - caracter a ser adicionado
+         * @param isFinal     - se é final da palavra ou não
+         * @param significado - significado da palavra (opcional)
+         * @return o novo nó adicionado
+         */
+        public CharNode addChild(char character, boolean isFinal, String significado) {
+            CharNode aux = findChildChar(character);
+            if (aux != null) {
                 return null;
             }
-            
+
+            CharNode n = new CharNode(character, isFinal);
+            if (n.isFinal) {
+                n.significado = significado;
+            }
+
+            n.father = this;
+            children.add(n);
+            totalNodes++;
+            return n;
         }
-        
-        public int getNumberOfChildren () {
+
+        public int getNumberOfChildren() {
             return children.size();
         }
-        
-        public CharNode getChild (int index) {
-            if ((index < 0) || (index >= children.size())) {
-                throw new IndexOutOfBoundsException();
+
+        public CharNode getChild(int index) {
+            if (index < 0 || index >= children.size()) {
+                return null;
             }
             return children.get(index);
         }
 
-        /**
-         * Obtém a palavra correspondente a este nodo, subindo até a raiz da árvore
-         * @return a palavra
-         */
-        private String getWord(CharNode n) {
-            String wordReverse = "";
-            if (n.isFinal != true) {
+        public String getWord(CharNode n) {
+            StringBuilder wordReverse = new StringBuilder();
+            if (!n.isFinal) {
                 return null;
             }
             getWord(n, wordReverse);
-            String word = "";
-            for (int i = wordReverse.length()-1; i >= 0; i++) {
-                word += wordReverse.charAt(i);
-            }
-            return word;
+            return wordReverse.reverse().toString();
         }
 
-        private void getWord(CharNode n, String word) {
-            if (n != null) {
-                word += n.character;
+        private void getWord(CharNode n, StringBuilder word) {
+            if (n != null && n != root) {
+                word.append(n.character);
                 getWord(n.father, word);
             }
         }
+
         
+
         /**
-        * Encontra e retorna o nodo que tem determinado caracter.
-        * @param character - caracter a ser encontrado.
-        */
-        public CharNode findChildChar (char character, CharNode n) {
-            if (n == null) {
-                return null;
-            }
-
-            if (n.character == character) {
-                return n;
-            }
-
-            CharNode aux = null;
-            for (int i = 0; i < n.getNumberOfChildren(); i++) {
-                aux = findChildChar(character, n.getChild(i));
-                if (aux != null) {
+         * Encontra e retorna o nó que tem determinado caractere.
+         *
+         * @param character - caractere a ser encontrado.
+         * @return o nó encontrado ou null caso não seja encontrado.
+         */
+        public CharNode findChildChar(char character) {
+            for (CharNode aux : children) {
+                if (aux.character == character) {
                     return aux;
                 }
             }
-            return aux;
+            return null;
         }
     }
-    
-    // Atributos
+
     private CharNode root;
     private int totalNodes = 0;
     private int totalWords = 0;
 
-    // Construtor
     public WordTree() {
         root = null;
         totalNodes = 0;
         totalWords = 0;
     }
 
-    // Metodos
     public int getTotalWords() {
         return totalWords;
     }
@@ -119,31 +114,75 @@ public class WordTree {
     public int getTotalNodes() {
         return totalNodes;
     }
-    
-    /**
-    *Adiciona palavra na estrutura em árvore
-    *@param word
-    */
-    public void addWord(String word) {
-        ...
-    }
-    
-    /**
-     * Vai descendo na árvore até onde conseguir encontrar a palavra
-     * @param word
-     * @return o nodo final encontrado
-     */
-    private CharNode findCharNodeForWord(String word) {
-        ...
+
+    public void addRoot() {
+        if (root == null) {
+            CharNode n = new CharNode('*', false);
+            root = n;
+        }
     }
 
+
+    public CharNode addWord(String word, String significado) {
+        CharNode aux = root;
+        for (int i = 0; i < word.length(); i++) {
+            CharNode child = aux.findChildChar(word.charAt(i));
+            if (child == null) {
+                boolean isFinal = (i == word.length() - 1);
+                aux = aux.addChild(word.charAt(i), isFinal, (isFinal ? significado : null));
+            } else {
+                aux = child;
+            }
+        }
+        totalWords++;
+        return aux;
+    }
+    
+    
+    /**
+     * Vai descendo na árvore até onde conseguir encontrar a palavra.
+     * @param word - palavra a ser procurada
+     * @return o nó final encontrado ou null caso a palavra não seja encontrada
+     */
+    public CharNode findCharNodeForWord(String word) {
+        CharNode aux = root;
+        for (int i = 0; i < word.length(); i++) {
+            if (aux != null) {
+                CharNode n = aux.findChildChar(word.charAt(i));
+                if (n == null) {
+                    return null;
+                }
+                aux = n;
+            }
+        }
+        return aux;
+    }
+    
     /**
     * Percorre a árvore e retorna uma lista com as palavras iniciadas pelo prefixo dado.
     * Tipicamente, um método recursivo.
     * @param prefix
     */
-    public List<String> searchAll(String prefix) {
-        ...
-    }   
+    public LinkedList<String> searchAll(String prefix) {
+        LinkedList<String> lista = new LinkedList<>();
+        CharNode startNode = findCharNodeForWord(prefix);
+        if(startNode != null){
+            caminhamento(startNode, lista);
+        }
+        return lista;
+    }
+
+    private void caminhamento(CharNode n, LinkedList<String> lista) {
+         if (n != null) {
+            if ((n.isFinal)) {
+                Palavra p = new Palavra(n.getWord(n), n.significado);
+                lista.add(p.toString());
+            }
+            for (CharNode child : n.children) {
+                caminhamento(child, lista);
+            }
+         }
+    }
+
 
 }

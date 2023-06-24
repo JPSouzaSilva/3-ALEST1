@@ -1,36 +1,28 @@
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.LinkedList;
-
+import java.io.InputStreamReader;
 
 public class App {
-    public static void main(String[] args) {
-        LinkedList<Palavra> lista = new LinkedList<>();
-        String aux[];
-                
-        Path path1 = Paths.get("dicionario.csv");
 
-        try (BufferedReader reader = Files.newBufferedReader(path1, Charset.forName("UTF-8"))) {// Charset.defaultCharset())
-            String line = reader.readLine();
-            while (line != null) {
-                aux = line.split(";");
-                if(lista.size()==0) {
-                    aux[0] = aux[0].substring(1);
-                    System.out.println(aux[0]);
-                }
-                Palavra p = new Palavra(aux[0],aux[1]);
-                lista.add(p);
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            System.err.format("Erro na leitura do arquivo: ", e);
-        }  
-        System.out.println("Lista de palavras e seus significados" + lista);
-        
+    public static void buildTree(WordTree tree, FileInputStream stream) throws IOException {
+        InputStreamReader reader = new InputStreamReader(stream);
+        BufferedReader br = new BufferedReader(reader);
+        String linha = br.readLine();
+        while (linha != null) {
+            String[] dados = linha.split(";");
+            String palavra = dados[0];
+            String significado = dados[1];
+            tree.addWord(palavra, significado);
+            linha = br.readLine();
+        }
+        br.close();
     }
- 
+
+    public static void main(String[] args) throws IOException {
+        FileInputStream stream = new FileInputStream("dicionario.csv");
+        WordTree tree = new WordTree();
+        tree.addRoot();
+        buildTree(tree, stream);
+    }
 }
